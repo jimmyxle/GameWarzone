@@ -4,6 +4,7 @@ Territory::Territory()
 {
 	ID = 0;
 	numberOfArmies = 0;
+	previewedNumberOfArmies = 0;
 	playerOwner = nullptr;
 	X = 0;
 	Y = 0;
@@ -14,6 +15,7 @@ Territory::Territory(int _ID, std::string _Name)
 {
 	ID = _ID;
 	numberOfArmies = 0;
+	previewedNumberOfArmies = 0;
 	playerOwner = nullptr;
 	X = 0;
 	Y = 0;
@@ -56,6 +58,18 @@ void Territory::addNeighbor(Territory* targetTerritory)
 	targetTerritory->Neighbors.push_back(this);
 }
 
+
+void Territory::setPreviewedArmies(int deployed)
+{
+	if (deployed >= 0)
+	{
+		previewedNumberOfArmies = deployed;
+	}
+	else
+	{
+		previewedNumberOfArmies = 0;
+	}
+}
 
 bool Continent::CheckIfAllContinentControl( Player *p)
 {

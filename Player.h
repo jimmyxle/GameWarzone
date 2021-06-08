@@ -9,6 +9,7 @@ class Order;
 class OrderList;
 class Cards;
 struct Pair;
+class Observer;
 
 
 class Player
@@ -23,6 +24,7 @@ private:
 	Map* gameMap;
 	OrderList* CommandList;
 	bool TerritoryConquiredThisTurn;
+	std::vector<Observer*> views;
 public:
 	Player();
 	Player(int numberOfArmies);
@@ -58,6 +60,8 @@ public:
 	std::vector<Territory*> getTerritoriesOwned() { return territoriesOwned; }
 	///Order* createDeploy(Player* tPlayer, int army, Territory* tTerritory, Map* _map);
 	int setMap(Map* _map) { gameMap = _map; return 0; }
+	Map* getMap() { return gameMap; }
+
 	Hand* getPlayerHand() { return playerHand; }
 	int readyArmyUnits() { numberToDeploy = numberOfArmies; numberOfArmies = 0; return 0; };//increase number to deploy
 	int getNumberToDeploy() { return numberToDeploy; }
@@ -73,6 +77,9 @@ public:
 	bool queryHandAction();
 	bool queryIssueAction();
 	bool executeNextOrder();
+	void attach(Observer* obs) { views.push_back(obs); }
+	void notify();
+
 
 	std::string PlayerMessage;
 	std::ostringstream stream;

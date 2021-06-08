@@ -180,10 +180,11 @@ void GameEngine::startupPhase()
 		notify();
 		do {
 			addResult = GameMap->ListOfPlayers[orderOfPlay[i]]->addTerritory(GameMap->CompleteList[ rand()% numberOfTerritories ]);
-			CurrentMessage = CurrentPlayer->PlayerMessage;
-			notify();
+			CurrentPlayer->notify();
+			//notify();
 		} while (addResult != 1);
 	}
+
 }
 
 void GameEngine::reinforcementPhase()
@@ -260,9 +261,12 @@ void GameEngine::issueOrdersPhase()
 				notify();
 
 			}
+			else
+			{
+				boolPlayerDone[i] = true;
+				numberOfDonePlayers++;
+			}
 
-			boolPlayerDone[i] = true;
-			numberOfDonePlayers++;
 			
 
 
@@ -339,10 +343,14 @@ void GameEngine::mainGameLoop()
 {
 
 	bool isGameFinished = false;
-
+	int GameLoopNumber = 0;
 	while (!isGameFinished)
 	{
-		checkIfPlayerEliminated();
+		if (GameLoopNumber == 0)
+			startupPhase();
+		else
+			checkIfPlayerEliminated();
+
 		if (!checkIfPlayerWon())
 		{
 			reinforcementPhase();
@@ -352,12 +360,13 @@ void GameEngine::mainGameLoop()
 		else
 		{
 			Player* winner = GameMap->ListOfPlayers[*orderOfPlay.begin()];
-
-	/*		CurrentMessage = "Player " + winner->getID() + " won!";
-			notify();*/
-			printf("Player [%d] won!\n", winner->getID());
+			CurrentPlayer->stream.clear();
+			CurrentPlayer->stream.str("");
+			winner->stream << "Player " << winner->getID() << " has won the game!\n";
+			winner->PlayerMessage = winner->stream.str();
+			winner->notify();
 		}
-
+		GameLoopNumber++;
 	}
 }
 

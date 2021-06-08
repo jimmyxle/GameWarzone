@@ -22,7 +22,7 @@
 #define GAMEENGINE_TEST_2 0
 #define GAMEENGINE_TEST_3 0
 #define GAMEENGINE_TEST_4 0
-#define GAMEENGINE_TEST_5 1
+#define GAMEENGINE_TEST_5 0
 #define GAMEENGINE_TEST_6 0
 #define DEPLOY_TEST_0 0
 #define ADVANCE_TEST_0 0
@@ -30,6 +30,9 @@
 #define BOMB_TEST_0 0
 #define BLOCKADE_TEST_0 0
 #define NEGOTIATE_TEST_0 0
+#define MAINLOOP_TEST0 0
+#define SFML_TEST0 0
+#define SFML_TEST1 1
 
 
 
@@ -652,6 +655,175 @@ int main(void)
 		GE->executeOrdersPhase();
 
 	}
+	if (MAINLOOP_TEST0)
+	{
+		GameEngine* GE = new GameEngine();
+		GE->mainGameLoop();
+	}
+	if (SFML_TEST0)
+	{
+		sf::RenderWindow window(sf::VideoMode(800, 600), "Risk: Warzone", sf::Style::Default);
+
+		while (window.isOpen())
+		{
+			sf::Event event;
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::Closed:
+					std::cout << "window closed " << std::endl;
+
+					window.close();
+					break;
+
+				case sf::Event::Resized:
+					std::cout << "new width: " << event.size.width << std::endl;
+					std::cout << "new height: " << event.size.height << std::endl;
+					break;
+
+				case sf::Event::KeyPressed:
+					if (event.key.code == sf::Keyboard::Escape)
+					{
+						std::cout << "Escape key was pressed.\n";
+					}
+					break;
+
+				case sf::Event::MouseButtonPressed:
+					if (event.mouseButton.button == sf::Mouse::Left)
+					{
+						std::cout << "x:" << event.mouseButton.x;
+						std::cout << "\ty: " << event.mouseButton.y << std::endl;
+					}
+
+					break;
+				}
+			}
+
+			window.clear();
+			window.display();
+		}
+	}
+
+	if (SFML_TEST1)
+	{
+		MapLoader* m0 = new MapLoader();
+		std::string file_location = MAPFOLDER CANADA;
+		std::string map_image_file = MAPFOLDER "canada\\canada_pic.png";
+		//std::string file_location = "C:\\Users\\jimmy\\Documents\\comp345\\maps\\switzerland\\swiss.map";
+		//std::string map_image_file = "C:\\Users\\jimmy\\Documents\\comp345\\maps\\switzerland\\swiss_pic.jpg";
+
+
+		m0->readMapData(file_location);
+		m0->getMap()->printBoard();
+
+
+		sf::Event event;
+		std::vector<sf::Sprite*> sprite_vector;
+		sf::Texture rectTexture;
+		sf::Texture backgroundTexture;
+		if (!backgroundTexture.loadFromFile(map_image_file))
+		{
+			std::cout << "Problem loading map.\n";
+			exit(0);
+		}
+		sf::Vector2 resolution = backgroundTexture.getSize();
+		if (!rectTexture.loadFromFile(TEXTUREFOLDER "TerritoryIcon.png"))
+		{
+			std::cout << "Problem loading texture.\n";
+			exit(0);
+		}
+		sf::Sprite background(backgroundTexture);
+	
+		sf::RenderWindow window(sf::VideoMode(resolution.x, resolution.y), "Risk: Warzone", sf::Style::Titlebar | sf::Style::Close );
+		window.setPosition(sf::Vector2i(sf::VideoMode::getDesktopMode().width/2, sf::VideoMode::getDesktopMode().height / 8));
+
+		//create the vector of sprites. Maybe add a sprite to every territory
+
+		for (int i = 0; i < m0->getMap()->CompleteList.size(); i++)
+		{
+			Territory* temp = m0->getMap()->CompleteList[i];
+			int x = temp->getX();
+			int y = temp->getY();
+
+			sf::Sprite* spr = new sf::Sprite();
+			rectTexture.setSmooth(false);
+			spr->setTexture(rectTexture);
+			spr->setPosition(sf::Vector2f(x, y));
+			sprite_vector.push_back(spr);
+		}
+
+		while (window.isOpen())
+		{
+			/* Draw everything you need to before you display it*/
+			window.clear();
+			window.draw(background);
+			for (int i = 0; i < sprite_vector.size(); i++)
+			{
+				window.draw(*sprite_vector[i]);
+			}
+			window.display();
+
+			/* Check user inputs */
+			size_t sprite_vector_size = sprite_vector.size();
+
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::Closed:
+					std::cout << "window closed " << std::endl;
+
+					window.close();
+					break;
+
+				case sf::Event::Resized:
+					std::cout << "new width: " << event.size.width << std::endl;
+					std::cout << "new height: " << event.size.height << std::endl;
+					break;
+
+				case sf::Event::KeyPressed:
+					if (event.key.code == sf::Keyboard::Escape)
+					{
+						std::cout << "Escape key was pressed.\n";
+					}
+					else if (event.key.code == sf::Keyboard::Q)
+					{
+						std::cout << "Quit the game. " << std::endl;
+
+						window.close();
+						break;
+					}
+
+					break;
+
+				case sf::Event::MouseButtonPressed:
+					if (event.mouseButton.button == sf::Mouse::Right)
+					{
+						//std::cout << "x:" << event.mouseButton.x;
+						//std::cout << "\ty: " << event.mouseButton.y << "\t";
+						for (int i = 0; i < sprite_vector_size; i++)
+						{
+							if (sprite_vector[i]->getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+							{
+								Territory* temp = m0->getMap()->CompleteList[i];
+								std::cout << "Territory: " << temp->getName().c_str() <<"\n";
+								std::cout << "Army: " << temp->getNumberOfArmies();
+
+								if(temp->getPlayerOwner())
+									std::cout << "\nOwned by: " << temp->getPlayerOwner();
+
+								break;
+							}
+						}
+						std::cout <<"\n";
+					}
+					break;
+				}
+			}
+		}
+	}
+
 	std::cout << "Press <enter> to end.\n" << std::endl;
 	auto ch = _getch();
 
