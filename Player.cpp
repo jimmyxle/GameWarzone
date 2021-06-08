@@ -12,6 +12,7 @@ Player::Player()
 	CommandList = new OrderList();
 	TerritoryConquiredThisTurn = false;
 	PlayerMessage = "";
+	views.push_back(new GameStatsObserver(this));
 }
 
 Player::Player(int _numberOfArmies)
@@ -24,6 +25,7 @@ Player::Player(int _numberOfArmies)
 	CommandList = new OrderList();
 	TerritoryConquiredThisTurn = false;
 	PlayerMessage = "";
+	views.push_back(new GameStatsObserver(this));
 
 }
 
@@ -70,6 +72,7 @@ int Player::addTerritory(Territory* t)
 		stream.clear();
 		stream.str("");
 		stream << "Territory ["<< t->getID() << "] is now owned by player ["<<t->getPlayerOwner()->getID()<<"]";
+		
 		PlayerMessage = stream.str();
 		
 		t->getContinent()->CheckIfAllContinentControl(this);
@@ -236,7 +239,7 @@ int Player::queryNumberOfUnitsToMove(Territory* sourceTerritory)
 	int playerChoice = -99;
 	int numberOfUnits = 0;
 	if (sourceTerritory)
-		numberOfUnits = sourceTerritory->getNumberOfArmies();
+		numberOfUnits = sourceTerritory->getNumberOfArmies() + sourceTerritory->getPreviewedArmies();
 	else
 		numberOfUnits = numberToDeploy;
 	do
@@ -249,6 +252,8 @@ int Player::queryNumberOfUnitsToMove(Territory* sourceTerritory)
 			correct = true;
 		}
 	} while (!correct);
+	if(sourceTerritory)
+		sourceTerritory->setPreviewedArmies(sourceTerritory->getPreviewedArmies() - playerChoice);
 	return playerChoice;
 }
 
@@ -655,13 +660,13 @@ void Player::issueOrder()
 		pairtemp = toAttack(pairtemp);
 		armyUnits = queryNumberOfUnitsToMove(pairtemp.Source);
 
-		temp = new Advance(this,armyUnits, pairtemp.Source, pairtemp.Target); //TODO: change to advance order
+		temp = new Advance(this,armyUnits, pairtemp.Source, pairtemp.Target); 
 		break;
 	case 1:
 		pairtemp = toDefend(pairtemp);
 		armyUnits = queryNumberOfUnitsToMove(pairtemp.Source);
 
-		temp = new Advance(this, armyUnits, pairtemp.Source, pairtemp.Target); //TODO: change to advance order to move armies
+		temp = new Advance(this, armyUnits, pairtemp.Source, pairtemp.Target); 
 		break;
 	case 2:
 		currentHand = getPlayerHand();
@@ -683,7 +688,7 @@ void Player::issueOrder()
 		target_ID = toDefend(); 
 		armyUnits = queryNumberOfUnitsToMove(NULL);
 
-		temp = new Deploy(this, armyUnits, gameMap->CompleteList[target_ID]);//TODO: change to deploy order
+		temp = new Deploy(this, armyUnits, gameMap->CompleteList[target_ID]);
 		setNumberToDeploy(numberToDeploy - armyUnits);
 		
 
@@ -755,4 +760,12 @@ bool Player::queryIssueAction()
 bool Player::executeNextOrder()
 {
 	return CommandList->playNextOrder();
+}
+
+void Player::notify()
+{
+	for (int i = 0; i < views.size(); i++)
+	{
+		views[i]->update();
+	}
 }

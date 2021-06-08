@@ -11,6 +11,7 @@ class Territory
 private:
 	int ID;
 	int numberOfArmies;
+	int previewedNumberOfArmies;
 	Player* playerOwner;
 	int X;
 	int Y;
@@ -35,7 +36,8 @@ public:
 	void addNeighbor(Territory* targetTerritory);
 	Continent* getContinent() { return PartOfContinent; }
 	void setContinent(Continent* c) { PartOfContinent = c; }
-
+	void setPreviewedArmies(int deployed);
+	int getPreviewedArmies() { return previewedNumberOfArmies; }
 };
 
 class Continent

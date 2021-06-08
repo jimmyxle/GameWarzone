@@ -55,9 +55,27 @@ GameStatsObserver::GameStatsObserver(Player* _model) : Observer()
 	numOfTerritories = 0;
 	totalNumOfTerritoes = 0;
 	Message = "";
+	model->attach(this);
+
 }
 
 void GameStatsObserver::update()
 {
-	//TODO do this
+	printf("GameStateObserverStats\n");
+	if(totalNumOfTerritoes == 0)
+		totalNumOfTerritoes = (int)model->getMap()->CompleteList.size();
+
+	float temp = (float)model->getNumberOfTerritories();
+	if (temp != numOfTerritories)
+	{
+		numOfTerritories = model->getNumberOfTerritories();
+		printf("Player %d controls %.2f %% \n", model->getID() ,temp/totalNumOfTerritoes);
+	}
+
+	std::string tempMessage = model->PlayerMessage;
+	if (tempMessage != Message)
+	{
+		Message = tempMessage;
+		printf("%s\n", Message.c_str());
+	}
 }

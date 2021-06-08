@@ -124,6 +124,8 @@ Deploy::Deploy(Player* _sourcePlayer, int _Army, Territory* _targetTerritory)
 	sourceTerritory = nullptr;
 	gameMap = nullptr;
 	Value = 5;
+	int previewed = targetTerritory->getPreviewedArmies() + army;
+	targetTerritory->setPreviewedArmies(previewed);
 }
 
 int Deploy::execute()
@@ -306,9 +308,12 @@ void Advance::battle(int defencePower, int attackPower)
 	{
 		printf("[%d] conquered. %d now occupy the territory.\n",
 			targetTerritory->getID(), attackerStrength);
-
-		targetTerritory->getPlayerOwner()->removeTerritory(targetTerritory->getID());
+		Player* defender = targetTerritory->getPlayerOwner();
+		if(defender)
+			defender->removeTerritory(targetTerritory->getID());
 		sourcePlayer->addTerritory(targetTerritory);
+		sourcePlayer->notify();
+
 		targetTerritory->setNumberOfArmies(attackerStrength);
 		int sourceDifference = sourceTerritory->getNumberOfArmies() - attackPower;
 		sourceTerritory->setNumberOfArmies(sourceDifference);

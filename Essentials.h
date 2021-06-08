@@ -10,6 +10,7 @@
 #include <time.h>
 #include <filesystem>
 #include <sstream>
+#include <SFML/Graphics.hpp>
 
 #include "Map.h"
 #include "GameObservers.h"
@@ -24,5 +25,8 @@
 #define MAPFOLDER "C:\\Users\\jimmy\\Documents\\comp345\\maps\\"
 #define CANADA "canada\\canada.map"
 #define CANADA_INVALID "canada\\canada_test1.map"
+#define TEXTUREFOLDER "C:\\Users\\jimmy\\source\\repos\\GameWarzone\\Texture\\"
 
+
+//TerritoryIcon.png"
 
